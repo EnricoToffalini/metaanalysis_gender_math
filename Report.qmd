@@ -1,0 +1,85 @@
+---
+title: "Meta-analysis on Gender Differences in Math Tasks"
+author: "(authors)"
+format: 
+       pdf:
+           header-includes: |
+               \usepackage{sectsty}
+               \sectionfont{\centering}
+bibliography: Report materials/references.bib
+csl: Report materials/apa.csl
+fig-cap-location: top
+---
+
+```{r include=F}
+options(scipen=999)
+library(metafor)
+library(ggplot2)
+trim = function(x,digits=2) return(format(round(x,digits),digits=digits,nsmall=digits))
+ptrim = function(p){
+  p = round(p)
+  if(p >= 0.001) ptrimmed = paste("=",trim(p,3))
+  if(p < 0.001) ptrimmed = "< 0.001"
+  return(ptrimmed)
+}
+load("Workspaces/workspaceMetaMathREML.RData")
+# load("Workspaces/workspaceMetaMathML.RData")
+tb = aggregate(d$N,by=list(d$ID_SAMPLE),FUN=max)
+medianN = median(tb$x)
+totN = sum(tb$x)
+```
+
+# Methods
+
+## Data analysis
+
+Standardized Mean Differences (SMDs) between males and females in math scores were meta-analyzed using formulae and analytical strategies suggested by @borenstein2021. Random effects multilevel models were fitted with the “metafor” package [@metafor2010] in R [@R2023]. Random intercepts were set for studies, samples (as some studies included multiple samples), and effect sizes. Heterogeneity was quantified using the following estimates: $\tau$ as the standard deviation (*SD*) of the effects across studies, $\omega_{sample}$ as the *SD* across samples, and $\omega$ as the *SD* across underlying effect sizes. Effect sizes larger than an absolute value of *d* = 2.00 were preliminarily excluded as they are considered implausible to reflect true effects and are too influential in the analysis.
+
+The moderators considered were the year of publication (quantitative: 2010-2022), the type of math task (categorical with 5 levels: advanced maths, basic numeracy, broad mathematics, computation, geometry), the geographical region (categorical with 7 levels: africa, central europe, east asia & oceania, middle east & russia, north america, north europe, south america), and the mean age of the sample (where available). Moderator analysis was conducted via meta-regression. Since the mean age could not be coded for all samples—either due to unavailability or because the age range was too broad—and only 25% of samples provided reliable age information, this moderator was examined in a separate analysis. For the other moderators (year of publication, type of math task, geographical region), a set of alternative models featuring all possible additive combinations and interactions were fitted, and the Akaike Information Criterion (AIC; smaller is better) [@akaike2011] was used to determine the best fitting model during model selection.
+
+# Results
+
+## Main effect
+
+A total number of `r length(levels(as.factor(d$ID)))` studies, `r length(levels(as.factor(d$ID_SAMPLE)))` samples, and `r nrow(d)` effect sizes were included in the quantitative synthesis. The estimated overall number of individuals involved is `r round(totN)`. The median sample is `r medianN`. 
+The overall meta-analytic effect estimated via multilevel random effect model (with intercept only) was *d* = `r trim(fit0$beta)` [95%CI: `r trim(fit0$ci.lb)`, `r trim(fit0$ci.ub)`], suggesting that males present an average score slightly but significantly higher than females, although the effect is virtually negligible in standardized terms. There was substantial heterogeneity across studies: $\tau$ = `r trim(sqrt(fit0$sigma2[1]))`, no estimated heterogeneity across samples, $\omega_{sample}$ = `r trim(sqrt(fit0$sigma2[2]))`, and some heterogeneity across individual effect sizes, $\omega$ = `r trim(sqrt(fit0$sigma2[3]))`. The overall heterogeneity is significant, *Q*(`r fit0$QEdf`) = `r trim(fit0$QE)`, *p* `r ptrim(fit0$QEp)`. Due to the number of studies and effects, the forest plot is impossible to represent, but the funnel plot is shown below in @fig-funnel-plot.
+
+```{r label="fig-funnel-plot", fig.cap="Scatter plot of random data.", fig.height=4, fig.width=5, echo=FALSE}
+    par(mar = c(4, 4, 0, 0))
+    funnel(fit0, cex=0.5, xlab="Standardized Mean Difference")
+```
+
+## Moderators
+
+Year of publication, type of math task, geographical region were simultaneously tested in meta-regression. The best fitting model (lowest AIC) featured all three moderators simultaneously in an additive model (i.e., without interaction), AIC = 130.44. Second best fitting model ($\Delta AIC$ = +1.55) also featured an interaction between year of publication and type of math task. All other models presented $\Delta AICs$ > +4.70 compared to the best fitting model. Also, all three effects were statistically significant when examined using likelihood ratio test: for year of publication, *Q*(1) = 6.97, *p* = 0.008; for type of math task, *Q*(4) = 32.74, *p* < 0.001; for geographical region, *Q*(6) = 17.94, *p* = 0.006. Effect of year of publication is easily interpretable due to positive meta-regression coefficient of year, *B* = 0.01, *p* = 0.008 (this suggests an increase of about $\Delta d$ = 0.10 over 10 years). As other moderators are categorical with many levels, interpretation of meta-regression coefficients is difficult as it involves considering several contrasts whose p-values should be corrected for multiple testing. Therefore, since the purpose of assessing moderators was widely explorative in nature, we resorted to visual inspection of predicted effects. For simplicity, this was conducted on models fitted separately for each moderator. Confidence interval may be used for a visual inspection of reliability of effects: where an interval excludes zero, the effect may be considered non-null, while where confidence intervals overlap by less than 50% we may consider them as probably different from each other. 
+
+@fig-year-publication shows meta-regression effect of year of publication on male-female difference in math scores. Meta-regression curve is titled upwards, confirming that the effect is estimated as being increasing over the time span considered. LOESS smoother (dashed curve) closely follows the meta-regression curve, confirming that the increase is approximately linear. 
+
+```{r label="fig-year-publication", fig.cap="Meta-regression effect of year of publication on male-female difference in math scores. Dots represent all (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually sufficiently linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
+    ggPY+theme(text=element_text(size=16))
+```
+
+@fig-math-content shows meta-regression effect of type of math task on male-female difference in math scores. Visual inspection suggests that gender differences in both advanced maths and basic numeracy are probably null (i.e., zero on average) while in all other three areas they may be positive (i.e., presenting higher scores in males than females on average). The largest effect is estimated in geometry, with a SMD of about 0.20. 
+
+```{r label="fig-math-content", fig.cap="Meta-regression effect of math content on male-female difference in math scores. Error bars represent 95% confidence intervals.", fig.height=4, fig.width=5, echo=FALSE}
+    ggMC+theme(text=element_text(size=16))
+```
+
+@fig-country-area shows meta-regression effect of type of geographical region on male-female difference in math scores. Visual inspection suggests that gender differences are larger in Central Europe countries (estimated SMD about 0.20) than in any other geographical area.
+
+```{r label="fig-country-area", fig.cap="Meta-regression effect of geographical region on male-female difference in math scores. Error bars represent 95% confidence intervals.", fig.height=4, fig.width=5, echo=FALSE}
+    ggCA+theme(text=element_text(size=15))
+```
+
+Lastly, we examined the meta-regression effect of mean age of sample. Since mean age could be reliably coded for only 25% of samples, this analysis was conducted separately. The meta-regression effect was statistically significant, *Q*(1) = 13.94, *p* < 0.001, *B* = 0.01. The estimated increase in SMD was about 0.14 for every +10 years of age. @fig-age shows the estimated meta-regression effect: the curve suggests that the male-female SMD is about null at the onset of formal education (6 years), and it may exceed 0.20 after 20 years of age.
+
+```{r label="fig-age", fig.cap="Meta-regression effect of years of age on male-female difference in math scores. Dots represent all (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually sufficiently linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
+    ggAge+theme(text=element_text(size=16))
+```
+
+
+
+\pagebreak
+# References
+
+

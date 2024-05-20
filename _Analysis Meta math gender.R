@@ -126,17 +126,18 @@ eff = data.frame(predict(fitMods_PY,PublicationYear))
 eff$PublicationYear = PublicationYear
 
 # plot
-ggplot(d,aes(x=PublicationYear2010+2010,y=eff))+
-  theme(text=element_text(size=20))+
+(ggPY = ggplot(d,aes(x=PublicationYear2010+2010,y=eff))+
+  theme(text=element_text(size=16))+
   scale_x_continuous(breaks=seq(2010,2022,2))+
   scale_y_continuous(breaks=seq(-2,2,.2))+
   coord_cartesian(ylim=c(-1,1))+
-  geom_point(size=2,alpha=.5)+
-  geom_smooth(alpha=.5,method="loess",linetype=2)+
+  geom_point(size=0.8,alpha=.5)+
+  geom_smooth(formula="y~x",method="loess",alpha=.5,linetype=2)+
   geom_ribbon(data=eff,aes(x=PublicationYear+2010,y=pred,ymin=ci.lb,ymax=ci.ub),size=1,fill="blue",alpha=.2)+
   geom_line(data=eff,aes(x=PublicationYear+2010,y=pred),size=1,color="blue")+
   xlab("Year of publication")+ylab("Estimated SMD")
-
+)
+  
 #######################
 
 # PLOT MODERATOR ANALYSIS: "MATH CONTENT 2"
@@ -145,12 +146,13 @@ Math_content2 = levels(as.factor(d$Math_content2))
 eff = data.frame(predict(fitMods_MC,creatematrix(Math_content2)))
 eff$Math_content2 = Math_content2
 
-ggplot(eff,aes(x=Math_content2,y=pred))+
-  theme(text=element_text(size=20),axis.text.x=element_text(angle=18,margin=margin(t=25)))+
+(ggMC = ggplot(eff,aes(x=Math_content2,y=pred))+
+  theme(text=element_text(size=16),axis.text.x=element_text(angle=90))+
   geom_hline(yintercept=0,size=1,linetype=2,color="darkgray")+
   geom_point(size=3)+
-  geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=.8)+
+  geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=0.8)+
   xlab("Math Content")+ylab("Estimated SMD")
+)
 
 #######################
 
@@ -160,12 +162,13 @@ CountryCode = levels(as.factor(d$CountryCode))
 eff = data.frame(predict(fitMods_CA,creatematrix(CountryCode)))
 eff$CountryCode = CountryCode
 
-ggplot(eff,aes(x=CountryCode,y=pred))+
-  theme(text=element_text(size=20),axis.text.x=element_text(angle=90))+
+(ggCA = ggplot(eff,aes(x=CountryCode,y=pred))+
+  theme(text=element_text(size=16),axis.text.x=element_text(angle=90))+
   geom_hline(yintercept=0,size=1,linetype=2,color="darkgray")+
   geom_point(size=3)+
-  geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=.8)+
+  geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=0.8)+
   xlab("Country area")+ylab("Estimated SMD")
+)
 
 ##############################################################
 
@@ -186,17 +189,22 @@ eff = data.frame(predict(fitMods_Age,years))
 eff$years = years
 
 # plot
-ggplot(dx,aes(x=MeanAge_years,y=eff))+
-  theme(text=element_text(size=20))+
-  scale_x_continuous(breaks=seq(0,30,2))+
-  scale_y_continuous(breaks=seq(-2,2,.2))+
-  coord_cartesian(ylim=c(-1,1))+
-  geom_point(size=2,alpha=.5)+
-  #geom_errorbar(aes(ymin=lb,ymax=ub),alpha=.5)+
-  geom_smooth(alpha=.5,linetype=2)+
-  geom_ribbon(data=eff,aes(x=years,y=pred,ymin=ci.lb,ymax=ci.ub),size=1,fill="blue",alpha=.2)+
-  geom_line(data=eff,aes(x=years,y=pred),size=1,color="blue")+
-  xlab("Age (years)")+ylab("Estimated SMD")
+(ggAge = ggplot(dx,aes(x=MeanAge_years,y=eff))+
+    theme(text=element_text(size=16))+
+    scale_x_continuous(breaks=seq(0,30,2))+
+    scale_y_continuous(breaks=seq(-2,2,.2))+
+    coord_cartesian(ylim=c(-1,1))+
+    #geom_errorbar(aes(ymin=lb,ymax=ub),alpha=.5)+
+    geom_ribbon(data=eff,aes(x=years,y=pred,ymin=ci.lb,ymax=ci.ub),fill="blue",alpha=.2)+
+    geom_point(size=2.5,alpha=.5)+
+    geom_smooth(formula="y~x",method="loess",alpha=.5,size=1.1,linetype=2)+
+    geom_line(data=eff,aes(x=years,y=pred),size=1.1,color="blue")+
+    xlab("Age (years)")+ylab("Estimated SMD")
+)
+
+##############################################################
+
+# save.image("Workspaces/workspaceMetaMathREML.RData")
 
 ##############################################################
 ##############################################################
