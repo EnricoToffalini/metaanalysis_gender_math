@@ -49,31 +49,43 @@ The overall meta-analytic effect estimated via multilevel random effect model (w
     funnel(fit0, cex=0.5, xlab="Standardized Mean Difference")
 ```
 
-## Moderators
+## Moderator analysis: year of publication, type of math task, geographical region
 
 Year of publication, type of math task, geographical region were simultaneously tested in meta-regression. The best fitting model (lowest AIC) featured all three moderators simultaneously in an additive model (i.e., without interaction), AIC = 130.44. Second best fitting model ($\Delta AIC$ = +1.55) also featured an interaction between year of publication and type of math task. All other models presented $\Delta AICs$ > +4.70 compared to the best fitting model. Also, all three effects were statistically significant when examined using likelihood ratio test: for year of publication, *Q*(1) = 6.97, *p* = 0.008; for type of math task, *Q*(4) = 32.74, *p* < 0.001; for geographical region, *Q*(6) = 17.94, *p* = 0.006. Effect of year of publication is easily interpretable due to positive meta-regression coefficient of year, *B* = 0.01, *p* = 0.008 (this suggests an increase of about $\Delta d$ = 0.10 over 10 years). As other moderators are categorical with many levels, interpretation of meta-regression coefficients is difficult as it involves considering several contrasts whose p-values should be corrected for multiple testing. Therefore, since the purpose of assessing moderators was widely explorative in nature, we resorted to visual inspection of predicted effects. For simplicity, this was conducted on models fitted separately for each moderator. Confidence interval may be used for a visual inspection of reliability of effects: where an interval excludes zero, the effect may be considered non-null, while where confidence intervals overlap by less than 50% we may consider them as probably different from each other. 
 
 @fig-year-publication shows meta-regression effect of year of publication on male-female difference in math scores. Meta-regression curve is titled upwards, confirming that the effect is estimated as being increasing over the time span considered. LOESS smoother (dashed curve) closely follows the meta-regression curve, confirming that the increase is approximately linear. 
 
-```{r label="fig-year-publication", fig.cap="Meta-regression effect of year of publication on male-female difference in math scores. Dots represent all (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually sufficiently linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
+```{r label="fig-year-publication", fig.cap="Meta-regression effect of year of publication on male-female difference in math scores. Dots represent observed effect sizes (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
     ggPY+theme(text=element_text(size=16))
 ```
 
 @fig-math-content shows meta-regression effect of type of math task on male-female difference in math scores. Visual inspection suggests that gender differences in both advanced maths and basic numeracy are probably null (i.e., zero on average) while in all other three areas they may be positive (i.e., presenting higher scores in males than females on average). The largest effect is estimated in geometry, with a SMD of about 0.20. 
 
 ```{r label="fig-math-content", fig.cap="Meta-regression effect of math content on male-female difference in math scores. Error bars represent 95% confidence intervals.", fig.height=4, fig.width=5, echo=FALSE}
-    ggMC+theme(text=element_text(size=16))
+    ggMC+theme(text=element_text(size=16))+xlab("Type of task")
 ```
 
 @fig-country-area shows meta-regression effect of type of geographical region on male-female difference in math scores. Visual inspection suggests that gender differences are larger in Central Europe countries (estimated SMD about 0.20) than in any other geographical area.
 
 ```{r label="fig-country-area", fig.cap="Meta-regression effect of geographical region on male-female difference in math scores. Error bars represent 95% confidence intervals.", fig.height=4, fig.width=5, echo=FALSE}
-    ggCA+theme(text=element_text(size=15))
+    ggCA+theme(text=element_text(size=15))+xlab("Geographical area")
 ```
+
+## Moderator analysis: GGI
+
+GGI was added to the above best fitting model as another quantitative moderator. The model fit remained virtually the same, $\Delta AIC$ = -0.20, but the likelihood ratio test failed to indicate a statistically significant effect of GGI, Q(1) = 2.26, p = 0.132, B = 0.76. Therefore, this suggests that GGI has little if any effect on the SMD of interest above and beyond geographical area.
+
+Nonetheless, GGI is positively related to the SMD when considered in isolation, that is without covarying the other moderators, Q(1) = 8.12, p = 0.004. @fig-GGI shows the meta-regression curve of GGI when considered in isolation. LOESS smoothing suggest that the relationship might be approximately linear at least around the bulk of the observed effect sizes.
+
+```{r label="fig-GGI", fig.cap="Meta-regression effect of GGI on male-female difference in math scores. Dots represent observed effect sizes (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually linear. Color represent geographical areas of observed effect sizes. Shaded areas represent 95% confidence bands.", fig.height=4.5, fig.width=5, echo=FALSE}
+    ggGGI+theme(text=element_text(size=15))+theme(legend.position = "top",legend.text=element_text(size=7.5),legend.title=element_blank())
+```
+
+## Moderator analysis: Mean age of sample
 
 Lastly, we examined the meta-regression effect of mean age of sample. Since mean age could be reliably coded for only 25% of samples, this analysis was conducted separately. The meta-regression effect was statistically significant, *Q*(1) = 13.94, *p* < 0.001, *B* = 0.01. The estimated increase in SMD was about 0.14 for every +10 years of age. @fig-age shows the estimated meta-regression effect: the curve suggests that the male-female SMD is about null at the onset of formal education (6 years), and it may exceed 0.20 after 20 years of age.
 
-```{r label="fig-age", fig.cap="Meta-regression effect of years of age on male-female difference in math scores. Dots represent all (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually sufficiently linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
+```{r label="fig-age", fig.cap="Meta-regression effect of years of age on male-female difference in math scores. Dots represent observed effect sizes (limited to the [-1, +1] range for ease of graphical representation). The solid line represents the meta-regression curve. Dashed line represents a LOESS smoother fitted for checking that the predicted effect is actually linear. Shaded areas represent 95% confidence bands.", fig.height=4, fig.width=5, echo=FALSE}
     ggAge+theme(text=element_text(size=16))
 ```
 

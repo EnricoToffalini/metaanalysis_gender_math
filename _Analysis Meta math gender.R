@@ -13,6 +13,7 @@ library(clubSandwich)
 source("custom functions.R")
 
 ##############################################################
+##############################################################
 
 # Import and prepare data; calculate Cohen's d
 
@@ -53,6 +54,7 @@ colSums(table(d$ID_SAMPLE,d$Math_content2)!=0)
 
 colSums(table(d$ID_SAMPLE,d$CountryCode)!=0)
 
+##############################################################
 ##############################################################
 
 # FIT ALL MODELS (ESPECIALLY FOR MODERATION ANALYSIS)
@@ -99,8 +101,20 @@ res = foreach(i=1:length(formulas),.packages="metafor") %dopar% {
 }
 for(i in 1:length(res)) assign(names[i],res[[i]])
 rm(res)
-save.image("Workspaces/workspaceMetaMathREML.RData")
 
+#######################
+
+## ADDING GGI
+
+# fitModsFull_plusGGI = rma.mv(yi=eff,V=V,random=~1|ID/ID_SAMPLE/id,data=d,mods=~PublicationYear2010+Math_content2+CountryCode+GGI,method="ML")
+#fitMods_GGI = rma.mv(yi=eff,V=V,random=~1|ID/ID_SAMPLE/id,data=d,mods=~GGI)
+
+#######################
+
+#save.image("Workspaces/workspaceMetaMathREML.RData")
+#save.image("Workspaces/workspaceMetaMathML.RData")
+
+##############################################################
 ##############################################################
 
 #### IF ALREADY DONE THE ABOVE: LOAD WORKSPACE
@@ -127,6 +141,7 @@ eff$PublicationYear = PublicationYear
 
 # plot
 (ggPY = ggplot(d,aes(x=PublicationYear2010+2010,y=eff))+
+  geom_hline(yintercept=0,size=1,linetype=3,color="darkgray")+
   theme(text=element_text(size=16))+
   scale_x_continuous(breaks=seq(2010,2022,2))+
   scale_y_continuous(breaks=seq(-2,2,.2))+
@@ -147,8 +162,8 @@ eff = data.frame(predict(fitMods_MC,creatematrix(Math_content2)))
 eff$Math_content2 = Math_content2
 
 (ggMC = ggplot(eff,aes(x=Math_content2,y=pred))+
+  geom_hline(yintercept=0,size=1,linetype=3,color="darkgray")+
   theme(text=element_text(size=16),axis.text.x=element_text(angle=90))+
-  geom_hline(yintercept=0,size=1,linetype=2,color="darkgray")+
   geom_point(size=3)+
   geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=0.8)+
   xlab("Math Content")+ylab("Estimated SMD")
@@ -163,11 +178,34 @@ eff = data.frame(predict(fitMods_CA,creatematrix(CountryCode)))
 eff$CountryCode = CountryCode
 
 (ggCA = ggplot(eff,aes(x=CountryCode,y=pred))+
+  geom_hline(yintercept=0,size=1,linetype=3,color="darkgray")+
   theme(text=element_text(size=16),axis.text.x=element_text(angle=90))+
-  geom_hline(yintercept=0,size=1,linetype=2,color="darkgray")+
-  geom_point(size=3)+
+    geom_point(size=3)+
   geom_errorbar(aes(ymin=ci.lb,ymax=ci.ub),width=.2,size=0.8)+
   xlab("Country area")+ylab("Estimated SMD")
+)
+
+#######################
+
+# PLOT MODERATOR ANALYSIS: "GGI"
+
+GGI = seq(0.49,0.88,.01)
+eff = data.frame(predict(fitMods_GGI,GGI))
+eff$GGI = GGI
+
+# plot
+(ggGGI = ggplot(d,aes(x=GGI,y=eff))+
+    geom_hline(yintercept=0,size=1,linetype=3,color="darkgray")+
+    theme(text=element_text(size=16))+
+    scale_x_continuous(breaks=seq(0.5,0.9,0.05))+
+    scale_y_continuous(breaks=seq(-2,2,.2))+
+    coord_cartesian(ylim=c(-1,1))+
+    geom_smooth(formula="y~x",method="loess",alpha=.3,linetype=2)+
+    geom_ribbon(data=eff,aes(x=GGI,y=pred,ymin=ci.lb,ymax=ci.ub),size=1,fill="blue",alpha=.15)+
+    geom_line(data=eff,aes(x=GGI,y=pred),size=1,color="blue")+
+    geom_point(size=1.1,alpha=.5,aes(color=CountryCode,shape=CountryCode),stroke=0.8)+
+    scale_shape_manual(values=c(6,18,19,15,17,4,3))+
+    xlab("GGI")+ylab("Estimated SMD")
 )
 
 ##############################################################
@@ -196,9 +234,9 @@ eff$years = years
     coord_cartesian(ylim=c(-1,1))+
     #geom_errorbar(aes(ymin=lb,ymax=ub),alpha=.5)+
     geom_ribbon(data=eff,aes(x=years,y=pred,ymin=ci.lb,ymax=ci.ub),fill="blue",alpha=.2)+
-    geom_point(size=2.5,alpha=.5)+
-    geom_smooth(formula="y~x",method="loess",alpha=.5,size=1.1,linetype=2)+
-    geom_line(data=eff,aes(x=years,y=pred),size=1.1,color="blue")+
+    geom_point(size=1.5,alpha=.5)+
+    geom_smooth(formula="y~x",method="loess",alpha=.5,size=1,linetype=2)+
+    geom_line(data=eff,aes(x=years,y=pred),size=1,color="blue")+
     xlab("Age (years)")+ylab("Estimated SMD")
 )
 
